@@ -96,6 +96,13 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let position = scrollView.contentOffset.y
+        if position > (tableView.contentSize.height - 100 - scrollView.frame.size.height) {            
+            viewModel.paginationTableView()
+        }
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -110,7 +117,7 @@ extension MainViewController: UIImagePickerControllerDelegate & UINavigationCont
         guard let image = info[.originalImage] as? UIImage else { return }
         
         Task {
-            try await viewModel.networkManager?.sendPhotoToServer(
+            try await viewModel.networkManager.sendPhotoToServer(
                 id: viewModel.idUser,
                 photo: image, name:
                 viewModel.nameUser

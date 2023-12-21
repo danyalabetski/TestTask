@@ -14,7 +14,13 @@ enum Constants {
 }
 
 final class NetworkManager {
-    func getPhotoTypeRequest(_ completion: @escaping ((Result<ModelPhotos, Error>) -> Void)) {
+    var isPaginating = false
+
+    func getPhotoTypeRequest(pagination: Bool = false, _ completion: @escaping ((Result<ModelPhotos, Error>) -> Void)) {
+        if pagination {
+            isPaginating = true
+        }
+
         guard let url = URL(string: Constants.apiForGetRequest) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, error in
@@ -28,6 +34,9 @@ final class NetworkManager {
             do {
                 let data = try JSONDecoder().decode(ModelPhotos.self, from: data)
                 completion(.success(data))
+                if pagination {
+                    self.isPaginating = false
+                }
             } catch {
                 completion(.failure(error))
             }
@@ -71,7 +80,7 @@ final class NetworkManager {
                 print("Error: \(error.localizedDescription)")
                 return
             }
-            
+
             guard let data = data else {
                 print("No data received.")
                 return
